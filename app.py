@@ -23,7 +23,7 @@ sentiments = SentimentIntensityAnalyzer()
 # import pandas as pd
 from googleapiclient.discovery import build
 
-api_key = "AIzaSyCKZ9Y5geIBmjNFgZMhl1-Yh3IX0C1yEpw"
+api_key = ""
 
 def video_comments(video_id):
     # empty list for storing reply               
