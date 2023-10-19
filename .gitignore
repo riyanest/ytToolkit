@@ -1,0 +1,5 @@
+# ignore ALL .log files
+*.log
+api key.txt
+# ignore ALL files in ANY directory named temp
+temp/
