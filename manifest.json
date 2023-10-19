@@ -1,18 +1,25 @@
-
   {
+    "name": "test",
+    "version": "1.0.0",
+    "description": "latest covid data of UK",
     "manifest_version": 3,
     "permissions": [
       "activeTab",
-      "http://127.0.0.1:5000/*"  
+      "http://127.0.0.1:5000/*"
     ],
     "content_scripts": [
       {
-        "matches": ["<all_urls>"],
-        "js": ["popup.js"]
+        "matches": [
+          "<all_urls>"
+        ],
+        "js": [
+          "popup.js"
+        ]
       }
     ],
-    "browser_action": {
+    "action": {
       "default_popup": "popup.html",
+      "default_title": "test",
       "default_icon": {
         "16": "image.png",
         "48": "image.png",

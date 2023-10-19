@@ -1,34 +1,16 @@
-import numpy as np # linear algebra
-import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
-
-import os
-for dirname, _, filenames in os.walk('/kaggle/input'):
-    for filename in filenames:
-        print(os.path.join(dirname, filename))
-
-from youtube_comment_scraper_python import *
-import pandas as pd
-
-link = input("Youtube links: ")
-saved = input("Output name: ")
-youtube.open(link)
-
-response = youtube.video_comments()
-all_data = []
-for i in range(0, 20): # It will scroll 10 times
-    response = youtube.video_comments()
-data = response['body']
-all_data.extend(data)
-df = pd.DataFrame(data)
-df.to_csv(saved)
-
-
 #Libraries 
+
 import numpy as np
 import pandas as pd 
-import matplotlib.pyplot as plt
-get_ipython().run_line_magic('matplotlib', 'inline')
-import os
+# import matplotlib.pyplot as plt
+# get_ipython().run_line_magic('matplotlib', 'inline')
+# import os
+# import os
+# for dirname, _, filenames in os.walk('/kaggle/input'):
+#     for filename in filenames:
+#         print(os.path.join(dirname, filename))
+
+# from youtube_comment_scraper_python import *
 
 # Import functions for data preprocessing & data preparation
 from sklearn.preprocessing import LabelEncoder
@@ -46,19 +28,38 @@ import string
 from string import punctuation
 import nltk
 import re
+# nltk.download('stopwords')
+# nltk.download('punkt')
+# nltk.download('a')
 
-data = pd.read_csv('../input/blackadam-trailer-comments/comments.csv')
+# df=pd.read_csv('comments.csv')
+# link = input("Youtube links: ")
+# saved = input("Output name: ")
+# youtube.open(link)
+
+# response = youtube.video_comments()
+# all_data = []
+# for i in range(0, 20): # It will scroll 10 times
+#     response = youtube.video_comments()
+# data = response['body']
+# all_data.extend(data)
+# df = pd.DataFrame(data)
+# df.to_csv(saved)
+
+
+data = pd.read_csv('comments.csv')
 data.columns
 data1=data.drop(['Unnamed: 0','Likes','Time','user','UserLink'],axis=1)
 data1
-
+print(data.head())
 nltk.download('vader_lexicon')
 sentiments = SentimentIntensityAnalyzer()
 data1["Positive"] = [sentiments.polarity_scores(i)["pos"] for i in data1["Comment"]]
 data1["Negative"] = [sentiments.polarity_scores(i)["neg"] for i in data1["Comment"]]
-data1["Neutral"] = [sentiments.polarity_scores(i)["neu"] for i in data1["Comment"]]
+data1["Neutral"] = [sentiments.polarity_scores(i) ["neu"] for i in data1["Comment"]]
 data1['Compound'] = [sentiments.polarity_scores(i)["compound"] for i in data1["Comment"]]
 score = data1["Compound"].values
+print(data1)
 sentiment = []
 for i in score:
     if i >= 0.05 :
@@ -166,8 +167,11 @@ classifier.fit(X_train, y_train)
 from sklearn.metrics import confusion_matrix, accuracy_score
 y_pred = classifier.predict(X_test)
 cm = confusion_matrix(y_test, y_pred)
-cm
+print(cm)
 
 nb_score = accuracy_score(y_test, y_pred)
 print('accuracy',nb_score)
-y_test
+# print(y_test)
+
+# example=classifier.predict([["my name is riyan, i am angry"]])
+print(X)
