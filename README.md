@@ -5,9 +5,9 @@ popup.html
 manifest.json
 popup.js
 
-backend server
+backend server:
 app.py
 
-selfmodel
+selfmodel:
 sentimentmodel.py
 
