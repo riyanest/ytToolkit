@@ -17,6 +17,8 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 # from youtube_comment_scraper_python import *
 from apiclient.discovery import build
 
+
+
 # Arguments that need to passed to the build function
 DEVELOPER_KEY = "AIzaSyCKZ9Y5geIBmjNFgZMhl1-Yh3IX0C1yEpw" 
 YOUTUBE_API_SERVICE_NAME = "youtube"
@@ -193,14 +195,23 @@ def videostats():
     text = data.get('text')
 
     if text is not None:
-        ytrequest = youtube.videos().list(part="snippet,contentDetails,statistics",id="Ks-_Mh1QhMc")
+        ytrequest = youtube.videos().list(part="snippet,contentDetails,statistics",id=text)
         ytresponse = ytrequest.execute()
-        return jsonify({'channelData': ytresponse})
+        return jsonify({'videoData': ytresponse})
     else:
         return jsonify({'error': 'Missing or invalid data'})
 
+@app.route('/search', methods=['POST'])
+def search():
+    data = request.json  # Expect JSON data with a 'text' field
+    text = data.get('text')
 
-
+    if text is not None:
+        ytrequest =  youtube.search().list(part="snippet",maxResults=25,q=text)
+        ytresponse = ytrequest.execute()
+        return jsonify({'searchData': ytresponse})
+    else:
+        return jsonify({'error': 'Missing or invalid data'})
     
 
 

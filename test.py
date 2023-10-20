@@ -1,14 +1,45 @@
-from apiclient.discovery import build
+# -*- coding: utf-8 -*-
 
-# Arguments that need to passed to the build function
-DEVELOPER_KEY = "AIzaSyCKZ9Y5geIBmjNFgZMhl1-Yh3IX0C1yEpw" 
-YOUTUBE_API_SERVICE_NAME = "youtube"
-YOUTUBE_API_VERSION = "v3"
+import os
+import google.oauth2.credentials
+import google_auth_oauthlib.flow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from google_auth_oauthlib.flow import InstalledAppFlow
 
-# creating Youtube Resource Object
-youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,developerKey = DEVELOPER_KEY)
+# google-api-core==2.7.2
+# google-api-python-client==2.46.0
+# google-auth==2.6.6
+# google-auth-httplib2==0.1.0
+# google-auth-oauthlib==0.5.1
 
+SCOPES = ['https://www.googleapis.com/auth/yt-analytics.readonly']
 
-request = youtube.videos().list(part="snippet,contentDetails,statistics",id="Ks-_Mh1QhMc")
-response = request.execute()
-print(response)
+API_SERVICE_NAME = 'youtubeAnalytics'
+API_VERSION = 'v2'
+CLIENT_SECRETS_FILE = 'secrets.json'
+def get_service():
+  flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
+  credentials = flow.run_console()
+  return build(API_SERVICE_NAME, API_VERSION, credentials = credentials)
+
+def execute_api_request(client_library_function, **kwargs):
+  response = client_library_function(
+    **kwargs
+  ).execute()
+
+  print(response)
+
+if __name__ == '__main__':
+  # Disable OAuthlib's HTTPs verification when running locally.
+  # *DO NOT* leave this option enabled when running in production.
+  os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
+  youtubeAnalytics = get_service()
+  execute_api_request(
+    youtubeAnalytics.reports().query,
+    ids='channel==MINE',
+    startDate='2017-01-01',
+    endDate='2017-12-31',
+    metrics='estimatedMinutesWatched,views,likes,subscribersGained',
+    dimensions='day',sort='day')
