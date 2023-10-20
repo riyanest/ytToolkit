@@ -15,6 +15,16 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 # from nltk.corpus import wordnet
 # from nltk.stem import PorterStemmer, LancasterStemmer, SnowballStemmer
 # from youtube_comment_scraper_python import *
+from apiclient.discovery import build
+
+# Arguments that need to passed to the build function
+DEVELOPER_KEY = "AIzaSyCKZ9Y5geIBmjNFgZMhl1-Yh3IX0C1yEpw" 
+YOUTUBE_API_SERVICE_NAME = "youtube"
+YOUTUBE_API_VERSION = "v3"
+
+# creating Youtube Resource Object
+youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,developerKey = DEVELOPER_KEY)
+
 
 app = Flask(__name__)
 sentiments = SentimentIntensityAnalyzer()
@@ -164,6 +174,35 @@ def analyze_sentiments_route():
         return jsonify({'sentiment': final})
     else:
         return jsonify({'error': 'Missing or invalid data'})
+    
+@app.route('/channelStats', methods=['POST'])
+def channelstats():
+    data = request.json  # Expect JSON data with a 'text' field
+    text = data.get('text')
+
+    if text is not None:
+        ytrequest = youtube.channels().list(part="snippet,contentDetails,statistics",id=text)
+        ytresponse = ytrequest.execute()
+        return jsonify({'channelData': ytresponse})
+    else:
+        return jsonify({'error': 'Missing or invalid data'})
+
+@app.route('/videoStats', methods=['POST'])
+def videostats():
+    data = request.json  # Expect JSON data with a 'text' field
+    text = data.get('text')
+
+    if text is not None:
+        ytrequest = youtube.videos().list(part="snippet,contentDetails,statistics",id="Ks-_Mh1QhMc")
+        ytresponse = ytrequest.execute()
+        return jsonify({'channelData': ytresponse})
+    else:
+        return jsonify({'error': 'Missing or invalid data'})
+
+
+
+    
+
 
 if __name__ == '__main__':
     app.run(debug=True)
