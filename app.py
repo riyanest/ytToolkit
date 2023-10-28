@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify,render_template
 import numpy as np
 import pandas as pd
 # import os
 # import re
+import json
 # import nltk
 # from string import punctuation
 # from sklearn.preprocessing import LabelEncoder
@@ -103,7 +104,7 @@ video_id = "b1UYfLlg4YQ"
 # Call function
 
 df=pd.DataFrame(video_comments(video_id))
-print(df.head())
+# print(df.head())
 
 # Define your sentiment analysis function
 def analyze_sentiments(text):
@@ -128,10 +129,13 @@ def analyze_sentiments(text):
     sentimentdf['sentiment']=tempsenti
     sentimentdf.drop(['compound'],axis=1,inplace=True)
     finalcommentdf = data.merge(sentimentdf, left_index=True, right_index=True, how='inner')
-
-    
+    # print(finalcommentdf['comment'].tolist())
+    comments = finalcommentdf['comment'].tolist()
+    sentimentslist=finalcommentdf['sentiment'].tolist()
 #     print(finalcommentdf.head())
-    return finalcommentdf.to_json()
+    json_string = json.dumps({'comments':comments, 'sentiment': sentimentslist})
+
+    return json_string
     
 #     print(datasentiments)
     
@@ -148,9 +152,46 @@ def analyze_sentiment(text):
         return "Neutral"
 
 
+
 @app.route("/") 
 def index(): 
     return "Hello"
+
+@app.route("/dashboard") 
+def dashboard(): 
+    message = "Hello, World"
+    return render_template('dashboard.html', message=message) 
+
+@app.route("/map") 
+def map(): 
+    message = "Hello, World"
+    return render_template('map.html', message=message) 
+
+@app.route("/icons") 
+def icons(): 
+    message = "Hello, World"
+    return render_template('icons.html', message=message) 
+
+@app.route("/tables") 
+def tables(): 
+    message = "Hello, World"
+    return render_template('tables.html', message=message) 
+
+@app.route("/typography") 
+def typography(): 
+    message = "Hello, World"
+    return render_template('typography.html', message=message) 
+  
+@app.route("/user") 
+def user(): 
+    message = "Hello, World"
+    return render_template('user.html', message=message) 
+  
+@app.route("/notifications") 
+def notifications(): 
+    message = "Hello, World"
+    return render_template('notifications.html', message=message) 
+  
 
 # return sentiment_result
 
@@ -173,7 +214,7 @@ def analyze_sentiments_route():
     if text is not None:
         data = video_comments(text)
         final=analyze_sentiments(data)
-        return jsonify({'sentiment': final})
+        return jsonify({'data': final})
     else:
         return jsonify({'error': 'Missing or invalid data'})
     
