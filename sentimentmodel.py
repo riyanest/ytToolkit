@@ -1,10 +1,32 @@
+import numpy as np
+import pandas as pd 
+# import matplotlib.pyplot as plt
+import os
 
+# Import functions for data preprocessing & data preparation
+from sklearn.preprocessing import LabelEncoder
+from sklearn.utils import resample
+from sklearn.feature_extraction.text import CountVectorizer
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+from nltk.stem import PorterStemmer, LancasterStemmer
+from nltk.stem.snowball import SnowballStemmer
+from nltk.corpus import stopwords
+from nltk.corpus import wordnet
+import string
+from string import punctuation
+import nltk
+import re
+sentiments = SentimentIntensityAnalyzer()
+api_key = "AIzaSyCKZ9Y5geIBmjNFgZMhl1-Yh3IX0C1yEpw"
 data = pd.read_csv('comments.csv')
 data.columns
 data1=data.drop(['Unnamed: 0','Likes','Time','user','UserLink'],axis=1)
-data1
+# data1
 
-nltk.download('vader_lexicon')
+# nltk.download('vader_lexicon')
 data1["Positive"] = [sentiments.polarity_scores(i)["pos"] for i in data1["Comment"]]
 data1["Negative"] = [sentiments.polarity_scores(i)["neg"] for i in data1["Comment"]]
 data1["Neutral"] = [sentiments.polarity_scores(i)["neu"] for i in data1["Comment"]]
@@ -61,7 +83,7 @@ def text_processing(text):
 
     return text
 
-nltk.download('omw-1.4')
+# nltk.download('omw-1.4')
 data_copy = data2.copy()
 data_copy.Comment = data_copy.Comment.apply(lambda text: text_processing(text))
 
@@ -117,7 +139,7 @@ classifier.fit(X_train, y_train)
 from sklearn.metrics import confusion_matrix, accuracy_score
 y_pred = classifier.predict(X_test)
 cm = confusion_matrix(y_test, y_pred)
-cm
+print(cm)
 
 nb_score = accuracy_score(y_test, y_pred)
 print('accuracy',nb_score)
