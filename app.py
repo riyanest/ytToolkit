@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 from googleapiclient.discovery import build
 from flask import Flask, request, jsonify, render_template
 # , redirect, url_for, flash, send_from_directory
@@ -22,7 +23,7 @@ from datetime import datetime
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 import json
-
+from flask_cors import CORS
 # import os
 # import re
 # import nltk
@@ -39,6 +40,8 @@ import json
 
 
 # Arguments that need to passed to the buil
+
+load_dotenv()
 
 API_SERVICE_NAME = "youtubeAnalytics"
 API_VERSION = "v2"
@@ -67,9 +70,10 @@ today = datetime.today().strftime('%Y-%m-%d')
 
 
 app = Flask(__name__)
+app.config['DEBUG']=os.environ.get('FLASK_DEBUG')
 sentiments = SentimentIntensityAnalyzer()
-
-api_key = "AIzaSyCKZ9Y5geIBmjNFgZMhl1-Yh3IX0C1yEpw"
+CORS(app)
+api_key = os.environ.get("API_KEY")
 
 # import pandas as pd
 youtube = build('youtube', 'v3', developerKey=api_key)
@@ -514,18 +518,18 @@ def analytics():  # Expect JSON data with a 'text' field
 
     # return jsonify({'response': response})
     # for response in response['columnHeaders']:
-#     #     print(response['name'])
+    #      print(response['name'])
 
 
-#     # Create figure
+    # Create figure
 
-# # Show plot
-#     fig.show()
-#     return jsonify({'month': dates,
-#                     "minutesWatched": minutesWatched,
-#                     "views": views,
-#                     "likes": likes,
-#                     "subs": subs})
+# Show plot
+    fig.show()
+    return jsonify({'month': dates,
+                    "minutesWatched": minutesWatched,
+                    "views": views,
+                    "likes": likes,
+                    "subs": subs})
 
 
 if __name__ == '__main__':
