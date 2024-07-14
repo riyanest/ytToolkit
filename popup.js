@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Display the sentiment analysis results
         displayResults(sentimentResults);
       })
-      .catch(error => {
+      .catch(error => { 
         console.error('Error fetching comments or performing sentiment analysis:', error);
         alert('An error occurred while analyzing the video.');
       });

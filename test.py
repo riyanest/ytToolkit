@@ -1,94 +1,117 @@
+# Impor
+import plotly.graph_objects as go
+import os
+import flask
+import requests
+from datetime import datetime
 
-import pandas as pd
+# import google.oauth2.credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
-sentiments = SentimentIntensityAnalyzer()
+import json
+# Define API service name and version
+API_SERVICE_NAME = "youtubeAnalytics"
+API_VERSION = "v2"
+CLIENT_SECRETS_FILE = 'D:/Projects/ytToolkit/Sentiment_analysis/client_secret_361851587388-5dmhhj1ctokd64u7stbff0g7ctg0j932.apps.googleusercontent.com.json'
+# Load your downloaded JSON credentials file
 
-api_key = "AIzaSyCKZ9Y5geIBmjNFgZMhl1-Yh3IX0C1yEpw"
+# 361851587388-5dmhhj1ctokd64u7stbff0g7ctg0j932.apps.googleusercontent.com
 
-def video_comments(video_id):
-    # empty list for storing reply               
-    df=pd.DataFrame()
-    comment=[]
-    replies = []
-
-    # creating youtube resource object
-    youtube = build('youtube', 'v3',developerKey=api_key)
-
-    # retrieve youtube video results
-    video_response=youtube.commentThreads().list(part='snippet,replies',videoId=video_id).execute()
-    #     print(video_response['items'])
-    # iterate video response
-    while video_response:
-
-        # extracting required info
-        # from each result object 
-        for item in video_response['items']:
- 
-            # Extracting comments
-            comment.append(item['snippet']['topLevelComment']['snippet']['textDisplay'])
-
-            # counting number of reply of comment
-            replycount = item['snippet']['totalReplyCount']
-
-            # if reply is there
-            if replycount>0:
-
-                # iterate through all reply
-                for reply in item['replies']['comments']:
-
-                    # Extract reply
-                    reply = reply['snippet']['textDisplay']
-
-                    # Store reply is list
-                    replies.append(reply)
-                    comment.append(reply)
-                    # print(comment,"reply")
-#                     df.append(reply)
-
-            # print comment with list of reply
-            
-            # print("actual",comment, replies, end = '\n\n')
-            # pd.concat([df,comment])
-            # print(df,"post append df")
-
-            # empty reply list
-            replies = []
-
-        # Again repeat
-        if 'nextPageToken' in video_response:
-            video_response = youtube.commentThreads().list(
-                    part = 'snippet,replies',
-                    videoId = video_id,
-                    pageToken = video_response['nextPageToken']
-                ).execute()
-        else:
-            return comment
-            break
-
-# Enter video id
-video_id = "b1UYfLlg4YQ"
-
-# Call function
-
-def analyze_sentiments(text):
-    data=pd.DataFrame(text, columns=['comment','sentiment'])
-    sentiments=[]
-    for i in data:
-
-        sentiments.append(sentiments.polarity_scores(i['comment']))
-
-    # if sentiment_dict['compound'] >= 0.05 :
-    #     return "Positive"
- 
-    # elif sentiment_dict['compound'] <= - 0.05 :
-    #     return "Negative"
-
-    # else :
-    #     return "Neutral"
-    print(sentiments)
+SCOPES = ['https://www.googleapis.com/auth/yt-analytics.readonly']
 
 
+def get_service():
+    flow = InstalledAppFlow.from_client_secrets_file(
+        CLIENT_SECRETS_FILE, SCOPES)
+    credentials = flow.run_local_server()
+    return build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
 
-df=video_comments(video_id)
-analyze_sentiments(df)
+
+def execute_api_request(client_library_function, **kwargs):
+    response = client_library_function(**kwargs).execute()
+    print(response)
+    return response
+
+
+today = datetime.today().strftime('%Y-%m-%d')
+
+
+if __name__ == '__main__':
+    # Disable OAuthlib's HTTPs verification when running locally.
+    # *DO NOT* leave this option enabled when running in production.
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
+    youtubeAnalytics = get_service()
+    response = execute_api_request(
+        youtubeAnalytics.reports().query,
+        ids='channel==MINE',
+        startDate='2018-01-01',
+        endDate='2024-03-01',
+        metrics='estimatedMinutesWatched,views,likes,subscribersGained',
+        dimensions='month')
+
+    dates = []
+    minutesWatched = []
+    views = []
+    likes = []
+    subs = []
+    for response in response['rows']:
+        dates.append(response[0])
+        minutesWatched.append(response[1])
+        views.append(response[2])
+        likes.append(response[3])
+        subs.append(response[4])
+
+# Create traces
+    traces = []
+
+    traces.append(go.Scatter(x=dates, y=minutesWatched,
+                  mode='lines+markers', name="MINUTES WATCHED"))
+    traces.append(go.Scatter(x=dates, y=views,
+                  mode='lines+markers', name="VIEWS"))
+    traces.append(go.Scatter(x=dates, y=likes,
+                  mode='lines+markers', name="LIKES"))
+    traces.append(go.Scatter(x=dates, y=subs,
+                  mode='lines+markers', name="DATES"))
+
+# Create figure
+    fig = go.Figure(data=traces)
+
+# Update layout
+    fig.update_layout(
+        title='Metrics Over Time',
+        xaxis=dict(
+            title='Month',
+            type='date',
+            rangeselector=dict(
+                buttons=list([
+                    dict(count=1,
+                         label="1m",
+                         step="month",
+                         stepmode="backward"),
+                    dict(count=6,
+                         label="6m",
+                         step="month",
+                         stepmode="backward"),
+                    dict(count=1,
+                         label="YTD",
+                         step="year",
+                         stepmode="todate"),
+                    dict(count=1,
+                         label="1y",
+                         step="year",
+                         stepmode="backward"),
+                    dict(step="all")
+                ])
+            ),
+            rangeslider=dict(
+                visible=True
+            )
+        ),
+        yaxis=dict(
+            title='Count'
+        )
+    )
+
+# Show plot
+    fig.show()
