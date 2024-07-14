@@ -73,7 +73,7 @@ app = Flask(__name__)
 app.config['DEBUG']=os.environ.get('FLASK_DEBUG')
 sentiments = SentimentIntensityAnalyzer()
 CORS(app)
-api_key = os.environ.get("API_KEY")
+api_key = 'AIzaSyCKZ9Y5geIBmjNFgZMhl1-Yh3IX0C1yEpw'
 
 # import pandas as pd
 youtube = build('youtube', 'v3', developerKey=api_key)
